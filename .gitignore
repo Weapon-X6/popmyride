@@ -1,0 +1,14 @@
+.idea
+__pycache__
+.vscode
+
+env3.*
+env
+venv
+
+dist
+site
+
+# vim temporary files
+*~
+.*.sw?
