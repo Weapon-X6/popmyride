@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from typing import Optional
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
@@ -14,6 +17,7 @@ db = [
     {"id": 9, "size": "l", "fuel": "hybrid", "doors": 5, "transmission": "auto"}
 ]
 
+
 @app.get("/")
 def willkommen(name):
     """return a friendly welcome"""
@@ -21,5 +25,23 @@ def willkommen(name):
 
 
 @app.get("/api/cars")
-def get_cars():
-    return db
+def get_cars(size: Optional[str] = None, doors: Optional[int] = None) -> list:
+    result = db
+    if size:
+        result = [car for car in result if car['size'] == size]
+    if doors:
+        result = [car for car in result if car['doors'] >= doors]
+    return result
+
+
+@app.get("/api/cars/{id}")
+def car_by_id(id: int) -> dict:
+    result = [car for car in db if car['id'] == id]
+    if result:
+        return result[0]
+    else:
+        raise HTTPException(status_code=404, detail=f"There is no car with id={id}.")
+
+
+if __name__ == "__main__":
+    uvicorn.run("car_sharing:app", reload=True)
