@@ -5,16 +5,23 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class Car(BaseModel):
-    id: int
+class CarInput(BaseModel):
     size: str
     fuel: Optional[str] = "electric"
     doors: int
     transmission: Optional[str] = "auto"
 
 
-def load_db() -> list[Car]:
+class CarOutput(CarInput):
+    id: int
+
+
+def load_db() -> list[CarOutput]:
     """Load a list of Car objects from a JSOn file"""
     with open("cars.json") as f:
-        return [Car.parse_obj(obj) for obj in json.load(f)]
+        return [CarOutput.parse_obj(obj) for obj in json.load(f)]
 
+
+def save_db(cars: list[CarOutput]):
+    with open("cars.json", "w") as f:
+        json.dump([car.dict() for car in cars], f, indent=4)
