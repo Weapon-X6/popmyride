@@ -14,13 +14,6 @@
         "id": 2
     },
     {
-        "size": "s",
-        "fuel": "gasoline",
-        "doors": 5,
-        "transmission": "manual",
-        "id": 3
-    },
-    {
         "size": "m",
         "fuel": "electric",
         "doors": 3,
