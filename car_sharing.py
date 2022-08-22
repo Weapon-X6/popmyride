@@ -5,8 +5,7 @@ from fastapi import FastAPI, HTTPException
 
 from schemas import load_db, CarInput, save_db, CarOutput
 
-app = FastAPI()
-
+app = FastAPI(title="Car Sharing")
 db = load_db()
 
 
@@ -40,7 +39,7 @@ def add_car(car: CarInput) -> CarOutput:
 
 
 @app.delete("/api/cars/{id}", status_code=204)
-def remove(id: int) -> None:
+def remove_car(id: int) -> None:
     matches = [car for car in db if car.id == id]
     if matches:
         car = matches[0]
