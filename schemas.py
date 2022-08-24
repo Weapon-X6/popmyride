@@ -5,6 +5,16 @@ from typing import Optional
 from pydantic import BaseModel
 
 
+class TripInput(BaseModel):
+    start: int
+    end: int
+    description: str
+
+
+class TripOutput(TripInput):
+    id: int
+
+
 class CarInput(BaseModel):
     size: str
     fuel: Optional[str] = "electric"
@@ -24,6 +34,7 @@ class CarInput(BaseModel):
 
 class CarOutput(CarInput):
     id: int
+    trips: list[TripOutput] = []
 
 
 def load_db() -> list[CarOutput]:

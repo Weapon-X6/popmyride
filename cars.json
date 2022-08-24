@@ -4,6 +4,26 @@
         "fuel": "gasoline",
         "doors": 3,
         "transmission": "auto",
+        "trips": [
+            {
+                "start": 0,
+                "end": 5,
+                "description": "Groceries",
+                "id": 1
+            },
+            {
+                "start": 5,
+                "end": 218,
+                "description": "Commute Amsterdam-Rotterdam",
+                "id": 2
+            },
+            {
+                "start": 218,
+                "end": 257,
+                "description": "Weekend beach trip",
+                "id": 3
+            }
+        ],
         "id": 1
     },
     {
@@ -11,6 +31,20 @@
         "fuel": "electric",
         "doors": 3,
         "transmission": "auto",
+        "trips": [
+            {
+                "start": 0,
+                "end": 34,
+                "description": "Taking dog to the vet",
+                "id": 4
+            },
+            {
+                "start": 34,
+                "end": 125,
+                "description": "Meeting Customer in Utrecht",
+                "id": 5
+            }
+        ],
         "id": 2
     },
     {
