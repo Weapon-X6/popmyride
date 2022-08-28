@@ -2,10 +2,10 @@ import json
 
 from typing import Optional
 
-from pydantic import BaseModel
+from sqlmodel import SQLModel, Field
 
 
-class TripInput(BaseModel):
+class TripInput(SQLModel):
     start: int
     end: int
     description: str
@@ -15,7 +15,7 @@ class TripOutput(TripInput):
     id: int
 
 
-class CarInput(BaseModel):
+class CarInput(SQLModel):
     size: str
     fuel: Optional[str] = "electric"
     doors: int
@@ -35,6 +35,10 @@ class CarInput(BaseModel):
 class CarOutput(CarInput):
     id: int
     trips: list[TripOutput] = []
+
+
+class Car(CarInput, table=True):
+    id: Optional[int] = Field(primary_key=True, default=None)
 
 
 def load_db() -> list[CarOutput]:
