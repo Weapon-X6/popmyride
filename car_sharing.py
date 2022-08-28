@@ -2,7 +2,7 @@ from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
-from sqlmodel import create_engine, SQLModel, Session
+from sqlmodel import create_engine, SQLModel, Session, select
 
 from schemas import load_db, CarInput, save_db, CarOutput, TripOutput, TripInput, Car
 
@@ -21,12 +21,13 @@ def on_startup():
 
 @app.get("/api/cars")
 def get_cars(size: Optional[str] = None, doors: Optional[int] = None) -> list:
-    result = db
-    if size:
-        result = [car for car in result if car.size == size]
-    if doors:
-        result = [car for car in result if car.doors >= doors]
-    return result
+    with Session(engine) as session:
+        query = select(Car)
+        if size:
+            query = query.where(Car.size == size)
+        if doors:
+            query = query.where(Car.doors >= doors)
+        return session.exec(query).all()
 
 
 @app.get("/api/cars/{id}")
