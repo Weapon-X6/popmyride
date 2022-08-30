@@ -1,7 +1,7 @@
 from typing import Optional
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from sqlmodel import create_engine, SQLModel, Session, select
 
 from schemas import load_db, CarInput, save_db, CarOutput, TripOutput, TripInput, Car
@@ -19,15 +19,19 @@ def on_startup():
     SQLModel.metadata.create_all(engine)
 
 
-@app.get("/api/cars")
-def get_cars(size: Optional[str] = None, doors: Optional[int] = None) -> list:
+def get_session():
     with Session(engine) as session:
-        query = select(Car)
-        if size:
-            query = query.where(Car.size == size)
-        if doors:
-            query = query.where(Car.doors >= doors)
-        return session.exec(query).all()
+        yield session
+
+
+@app.get("/api/cars")
+def get_cars(size: Optional[str] = None, doors: Optional[int] = None, session: Session = Depends(get_session)) -> list:
+    query = select(Car)
+    if size:
+        query = query.where(Car.size == size)
+    if doors:
+        query = query.where(Car.doors >= doors)
+    return session.exec(query).all()
 
 
 @app.get("/api/cars/{id}")
@@ -40,13 +44,12 @@ def car_by_id(id: int) -> CarInput:
 
 
 @app.post("/api/cars/", response_model=Car)
-def add_car(car_input: CarInput) -> Car:
-    with Session(engine) as session:
-        new_car = Car.from_orm(car_input)
-        session.add(new_car)
-        session.commit()
-        session.refresh(new_car)
-        return new_car
+def add_car(car_input: CarInput, session: Session = Depends(get_session)) -> Car:
+    new_car = Car.from_orm(car_input)
+    session.add(new_car)
+    session.commit()
+    session.refresh(new_car)
+    return new_car
 
 
 @app.delete("/api/cars/{id}", status_code=204)
