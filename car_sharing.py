@@ -34,11 +34,11 @@ def get_cars(size: Optional[str] = None, doors: Optional[int] = None, session: S
     return session.exec(query).all()
 
 
-@app.get("/api/cars/{id}")
-def car_by_id(id: int) -> CarInput:
-    result = [car for car in db if car.id == id]
-    if result:
-        return result[0]
+@app.get("/api/cars/{id}", response_model=Car)
+def car_by_id(id: int, session: Session = Depends(get_session)) -> CarInput:
+    car = session.get(Car, id)
+    if car:
+        return car
     else:
         raise HTTPException(status_code=404, detail=f"There is no car with id={id}.")
 
@@ -53,26 +53,24 @@ def add_car(car_input: CarInput, session: Session = Depends(get_session)) -> Car
 
 
 @app.delete("/api/cars/{id}", status_code=204)
-def remove_car(id: int) -> None:
-    matches = [car for car in db if car.id == id]
-    if matches:
-        car = matches[0]
-        db.remove(car)
-        save_db(db)
+def remove_car(id: int, session: Session = Depends(get_session)) -> None:
+    car = session.get(Car, id)
+    if car:
+        session.delete(car)
+        session.commit()
     else:
         raise HTTPException(status_code=404, detail=f"No car with id={id}.")
 
 
-@app.put("/api/cars/{id}", response_model=CarOutput)
-def change_car(id: int, new_data: CarInput) -> CarOutput:
-    matches = [car for car in db if car.id == id]
-    if matches:
-        car = matches[0]
+@app.put("/api/cars/{id}", response_model=Car)
+def change_car(id: int, new_data: CarInput, session: Session = Depends(get_session)) -> CarOutput:
+    car = session.get(Car, id)
+    if car:
         car.fuel = new_data.fuel
         car.transmission = new_data.transmission
         car.size = new_data.size
         car.doors = new_data.doors
-        save_db(db)
+        session.commit()
         return car
     else:
         raise HTTPException(status_code=204, detail=f"No car with id={car_id}.")
