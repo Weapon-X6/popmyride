@@ -27,6 +27,7 @@ def car_by_id(id: int, session: Session = Depends(get_session)) -> CarInput:
     else:
         raise HTTPException(status_code=404, detail=f"There is no car with id={id}.")
 
+
 @router.post("/", response_model=Car)
 def add_car(car_input: CarInput, session: Session = Depends(get_session)) -> Car:
     new_car = Car.from_orm(car_input)
