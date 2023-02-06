@@ -27,7 +27,6 @@ def car_by_id(id: int, session: Session = Depends(get_session)) -> CarInput:
     else:
         raise HTTPException(status_code=404, detail=f"There is no car with id={id}.")
 
-
 @router.post("/", response_model=Car)
 def add_car(car_input: CarInput, session: Session = Depends(get_session)) -> Car:
     new_car = Car.from_orm(car_input)
@@ -61,11 +60,17 @@ def change_car(id: int, new_data: CarInput, session: Session = Depends(get_sessi
         raise HTTPException(status_code=204, detail=f"No car with id={id}.")
 
 
+class BadTripException(Exception):
+    pass
+
+
 @router.post("/{id}/trips", response_model=Trip)
 def add_trip(id: int, trip_input: TripInput, session: Session = Depends(get_session)) -> Trip:
     car = session.get(Car, id)
     if car:
         new_trip = Trip.from_orm(trip_input, update={'car_id': id})
+        if new_trip.end < new_trip.start:
+            raise BadTripException("Trip end before start")
         car.trips.append(new_trip)
         session.commit()
         session.refresh(new_trip)
